@@ -1,15 +1,18 @@
 import "./sidebar.css";
-import { useState } from "react";
 import { FiUpload, FiFileText, FiChevronLeft, FiMenu } from "react-icons/fi";
 import { BiHistory } from "react-icons/bi";
 
-export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+interface SidebarProps {
+  isOpen: boolean;
+  toggleSidebar: () => void;
+  onSelectChat: (chatId: string) => void;
+}
 
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, onSelectChat }) => {
   return (
     <div className={`sidebar ${isOpen ? "" : "collapsed"}`}>
       {/* Toggle Button */}
-      <button onClick={() => setIsOpen(!isOpen)} className="toggle-btn">
+      <button onClick={toggleSidebar} className="toggle-btn">
         {isOpen ? <FiChevronLeft className="toggle-icon" /> : <FiMenu className="toggle-icon" />}
       </button>
 
@@ -35,9 +38,9 @@ export default function Sidebar() {
               <h3><BiHistory className="icon" /> Chat History</h3>
               <div className="chat-history-list">
                 <ul>
-                  <li><input type="checkbox" id="chat1" /><label htmlFor="chat1">Chat ID 1</label></li>
-                  <li><input type="checkbox" id="chat2" /><label htmlFor="chat2">Chat ID 2</label></li>
-                  <li><input type="checkbox" id="chat3" /><label htmlFor="chat3">Chat ID 3</label></li>
+                  <li><button onClick={() => onSelectChat("Chat 1")}>Chat ID 1</button></li>
+                  <li><button onClick={() => onSelectChat("Chat 2")}>Chat ID 2</button></li>
+                  <li><button onClick={() => onSelectChat("Chat 3")}>Chat ID 3</button></li>
                 </ul>
               </div>
             </div>
@@ -46,4 +49,6 @@ export default function Sidebar() {
       </div>
     </div>
   );
-}
+};
+
+export default Sidebar;

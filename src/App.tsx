@@ -1,12 +1,33 @@
-import "./index.css";
-import Sidebar from "./components/sidebar/sidebar";
-import ChatUI from "./components/chat/ChatUI";
+import React, { useState } from 'react';
+import './App.css';
+import Sidebar from './components/sidebar/sidebar';
+import ChatInterface from './components/ChatInterface/chatinterface';
 
-export default function App() {
+const App: React.FC = () => {
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   return (
-    <div className="h-screen flex bg-gray-100">
-      <Sidebar />
-      <ChatUI />
+    <div className="app-container">
+      {/* Sidebar with smooth toggling */}
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        toggleSidebar={() => setIsSidebarOpen(prev => !prev)} 
+        onSelectChat={setSelectedChat} 
+      />
+
+      {/* Main Chat Area */}
+      <div className={`chat-section ${isSidebarOpen ? 'expanded' : 'collapsed'}`}>
+        {selectedChat ? (
+          <ChatInterface chatId={selectedChat} />
+        ) : (
+          <div className="placeholder">
+            <h2>Select a chat to start messaging</h2>
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default App;
