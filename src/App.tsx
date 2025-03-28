@@ -44,7 +44,12 @@ const App: React.FC = () => {
     ));
   };
 
-  // Add this to your App.tsx (only the modified handleMessageSent function)
+  const handleUpdateChatTitle = (chatId: string, newTitle: string) => {
+    setChats(prev => prev.map(chat => 
+      chat.id === chatId ? { ...chat, title: newTitle } : chat
+    ));
+  };
+
   const handleMessageSent = (chatId: string, message: Message) => {
     setChats(prev => {
       const updatedChats = [...prev];
@@ -52,28 +57,22 @@ const App: React.FC = () => {
       
       if (chatIndex === -1) return prev;
       
-      // Create a new messages array
       let newMessages = [...updatedChats[chatIndex].messages];
       
-      // If this is a loading message, replace any existing loading message
       if (message.sender === 'loading') {
         newMessages = newMessages.filter(m => !m.id.includes('-loading'));
       }
-      // If this is a bot message, replace any existing loading message
       else if (message.sender === 'bot') {
         newMessages = newMessages.filter(m => !m.id.includes('-loading'));
       }
       
-      // Add the new message
       newMessages.push(message);
       
-      // Update the chat
       updatedChats[chatIndex] = {
         ...updatedChats[chatIndex],
         messages: newMessages
       };
       
-      // Update chat title if needed
       if (updatedChats[chatIndex].title === 'New Chat' && message.sender === 'user') {
         updatedChats[chatIndex].title = `Chat ${nextChatNumber}: ${
           message.text.length > 30 
@@ -137,6 +136,8 @@ const App: React.FC = () => {
             onToggleTheme={handleToggleTheme}
             onProfileClick={handleProfileClick}
             currentTheme={theme}
+            onUpdateChatTitle={handleUpdateChatTitle}
+            currentChatTitle={chats.find(chat => chat.id === activeChatId)?.title || 'New Chat'}
           />
         )}
       </div>

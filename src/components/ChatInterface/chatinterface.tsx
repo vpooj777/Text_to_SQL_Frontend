@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ChatInterface.css';
-import { FiSun, FiMoon, FiGlobe, FiUser } from 'react-icons/fi';
+import { FiSun, FiMoon, FiGlobe, FiUser, FiEdit } from 'react-icons/fi';
 import { Message } from '../types';
 
 interface ChatInterfaceProps {
@@ -11,6 +11,8 @@ interface ChatInterfaceProps {
   onToggleTheme: () => void;
   onProfileClick: () => void;
   currentTheme: 'light' | 'dark';
+  onUpdateChatTitle: (chatId: string, title: string) => void;
+  currentChatTitle: string;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -20,15 +22,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onTranslate,
   onToggleTheme,
   onProfileClick,
-  currentTheme
+  currentTheme,
+  onUpdateChatTitle,
+  currentChatTitle
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isBotThinking, setIsBotThinking] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(currentChatTitle);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    setEditedTitle(currentChatTitle);
+  }, [currentChatTitle]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,12 +52,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     navigator.clipboard.writeText(sql);
   };
 
+  const handleSaveTitle = () => {
+    if (editedTitle.trim()) {
+      onUpdateChatTitle(chatId, editedTitle.trim());
+    }
+    setIsEditingTitle(false);
+  };
+
   const handleSendMessage = () => {
     if (inputValue.trim() === '' || isBotThinking) return;
   
     const messageTimestamp = Date.now();
   
-    // User message
     const userMessage: Message = {
       id: `msg-${messageTimestamp}-user`,
       text: inputValue,
@@ -56,7 +72,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     };
     onMessageSent(chatId, userMessage);
   
-    // Loading message
     const loadingMessage: Message = {
       id: `msg-${messageTimestamp}-loading`,
       text: 'Generating SQL response...',
@@ -69,7 +84,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setIsBotThinking(true);
   
     setTimeout(() => {
-      // Bot response
       const botMessage: Message = {
         id: `msg-${messageTimestamp}-bot`,
         text: `Based on your request, here's the SQL query:`,
@@ -79,15 +93,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         sqlQuery: `SELECT * FROM ${inputValue.toLowerCase().split(' ')[0] || 'users'} LIMIT 10;`
       };
       
-      // This will automatically replace the loading message
       onMessageSent(chatId, botMessage);
       setIsBotThinking(false);
     }, 1000);
   };
-
-  const chatTitle = messages.length > 0 
-    ? messages.find(m => m.sender === 'user')?.text || 'New Chat'
-    : 'New Chat';
 
   return (
     <div className={`chat-interface ${currentTheme}`}>
@@ -98,10 +107,41 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Chat Header with Action Buttons */}
       <div className="chat-header">
-        <h3 className="chat-title">
-          {chatTitle.length > 30 ? `${chatTitle.substring(0, 30)}...` : chatTitle}
-        </h3>
+        <div className="chat-title-container">
+          {isEditingTitle ? (
+            <div className="title-edit-container">
+              <input
+                type="text"
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle()}
+                onBlur={handleSaveTitle}
+                autoFocus
+                className="title-edit-input"
+                aria-label="Edit chat title"
+                placeholder="Enter chat title"
+                title="Edit chat title"
+              />
+            </div>
+          ) : (
+            <h3 
+              className="chat-title" 
+              onClick={() => setIsEditingTitle(true)}
+            >
+              {currentChatTitle.length > 30 
+                ? `${currentChatTitle.substring(0, 30)}...` 
+                : currentChatTitle}
+            </h3>
+          )}
+        </div>
         <div className="action-buttons">
+          <button 
+            onClick={() => setIsEditingTitle(true)} 
+            className="action-btn" 
+            title="Edit Chat Title"
+          >
+            <FiEdit />
+          </button>
           <button onClick={onTranslate} className="action-btn" title="Translate">
             <FiGlobe />
           </button>
