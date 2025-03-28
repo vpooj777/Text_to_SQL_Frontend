@@ -7,61 +7,28 @@
   flex-direction: column;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
 /* Root container */
 .app-container {
   display: flex;
   height: 100vh;
-  padding: 15px; /* Add some space around the layout */
-  background-color: #f4f4f4; /* Slight background color for a cleaner look */
+  background-color: #f4f4f4;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 300px; 
-  transition: width 0.3s ease-in-out;
-}
-.sidebar.collapsed {
-  width: 60px;
+/* Dark theme styles */
+.app-container.dark {
+  background-color: #1a1a2e;
+  color: #ffffff;
 }
 
-/* Chat section (chat interface container) */
+/* Sidebar width variables */
+:root {
+  --sidebar-width: 300px;
+  --sidebar-collapsed-width: 70px;
+}
+
+/* Chat section (main content area) */
 .chat-section {
   flex: 1;
   display: flex;
@@ -69,14 +36,17 @@
   transition: all 0.3s ease-in-out;
   background-color: #f5f5f5;
   padding: 15px;
-  margin-left: 300px; /* Adds space between sidebar and chat interface */
+  margin-left: var(--sidebar-width);
+}
 
+.app-container.dark .chat-section {
+  background-color: #16213e;
 }
 
 /* Adjust chat section when sidebar is collapsed */
 .chat-section.collapsed {
-  margin-left: 0; /* Remove extra spacing */
-  width: calc(100% - 60px); /* Take full width minus sidebar */
+  margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
 }
 
 /* Placeholder when no chat is selected */
@@ -92,4 +62,28 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
- 
+.app-container.dark .placeholder {
+  background-color: #0f3460;
+  color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .chat-section {
+    margin-left: 0;
+  }
+  
+  .chat-section.expanded {
+    margin-left: var(--sidebar-width);
+  }
+  
+  .chat-section.collapsed {
+    width: 100%;
+    margin-left: var(--sidebar-collapsed-width);
+  }
+}
+
+/* Remove animation styles not needed for our app */
+.logo, .card, .read-the-docs {
+  display: none;
+}
